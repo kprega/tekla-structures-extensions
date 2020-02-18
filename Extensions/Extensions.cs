@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Tekla.Structures.Model;
 
 namespace Tekla.Structures.OpenApi
 {
@@ -23,6 +24,18 @@ namespace Tekla.Structures.OpenApi
                 if (enumerator.Current is T) list.Add((T)enumerator.Current);
             }
             return list;
+        }
+
+        /// <summary>
+        /// Gets given object's phase.
+        /// </summary>
+        /// <param name="modelObject">Model object to read phase from.</param>
+        /// <returns>Model object's phase.</returns>
+        public static Phase GetPhase(this ModelObject modelObject)
+        {
+            var phase = new Phase();
+            modelObject.GetPhase(out phase);
+            return phase;
         }
     }
 }
