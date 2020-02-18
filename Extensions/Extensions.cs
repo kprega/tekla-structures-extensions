@@ -27,6 +27,21 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
+        /// Creates an array list using collection of model objects.
+        /// </summary>
+        /// <param name="collection">Collection of model objects.</param>
+        /// <returns>Array list containing model objects.</returns>
+        public static ArrayList ToArrayList(this ICollection<ModelObject> collection)
+        {
+            var arraylist = new ArrayList();
+            foreach (var item in collection)
+            {
+                arraylist.Add(item);
+            }
+            return arraylist;
+        }
+
+        /// <summary>
         /// Gets given object's phase.
         /// </summary>
         /// <param name="modelObject">Model object to read phase from.</param>
@@ -36,6 +51,58 @@ namespace Tekla.Structures.OpenApi
             var phase = new Phase();
             modelObject.GetPhase(out phase);
             return phase;
+        }
+
+        /// <summary>
+        /// Overload of Tekla's method, using an AABB as input parameter instead of 2 points.
+        /// </summary>
+        /// <param name="selector">Model object selector to select nearby objects.</param>
+        /// <param name="box">Axis-aligned bounding box as input.</param>
+        /// <returns>Enumerator of model objects being near to given AABB.</returns>
+        public static ModelObjectEnumerator GetObjectsByBoundingBox(this ModelObjectSelector selector, Geometry3d.AABB box)
+        {            
+            return selector.GetObjectsByBoundingBox(box.MinPoint, box.MaxPoint);
+        }
+
+        /// <summary>
+        /// Overload of Tekla's method, using an OBB as input parameter instead of 2 points.
+        /// </summary>
+        /// <param name="selector">Model object selector to select nearby objects.</param>
+        /// <param name="box">Oriented bounding box as input.</param>
+        /// <returns>Enumerator of model objects being near to given AABB.</returns>
+        public static ModelObjectEnumerator GetObjectsByBoundingBox(this ModelObjectSelector selector, Geometry3d.OBB box)
+        {
+            var workPlaneHandler = new Model.Model().GetWorkPlaneHandler();
+            var currentTransformationPlane = workPlaneHandler.GetCurrentTransformationPlane();
+            workPlaneHandler.SetCurrentTransformationPlane(new TransformationPlane(box.Center, box.Axis0, box.Axis1));
+            var result = selector.GetObjectsByBoundingBox(
+                MinPoint: new Geometry3d.Point(-box.Extent0, -box.Extent1, -box.Extent2), 
+                MaxPoint: new Geometry3d.Point( box.Extent0,  box.Extent1,  box.Extent2));
+            workPlaneHandler.SetCurrentTransformationPlane(currentTransformationPlane);
+            return result;
+        }
+
+        /// <summary>
+        /// Overload of Tekla's method, selects objects using given collection.
+        /// </summary>
+        /// <param name="selector">Model object selector to select objects in UI.</param>
+        /// <param name="collection">Object implementing generic ICollection interface.</param>
+        /// <returns>True on success, false otherwise.</returns>
+        public static bool Select(this Model.UI.ModelObjectSelector selector, ICollection<ModelObject> collection)
+        {
+            return selector.Select(collection.ToArrayList());
+        }
+
+        /// <summary>
+        /// Overload of Tekla's method, selects objects using given collection.
+        /// </summary>
+        /// <param name="selector">Model object selector to select objects in UI.</param>
+        /// <param name="collection">Object implementing generic ICollection interface.</param>
+        /// <param name="showDimensions">Defines whether to show dimensions of selected objects.</param>
+        /// <returns>True on success, false otherwise.</returns>
+        public static bool Select(this Model.UI.ModelObjectSelector selector, ICollection<ModelObject> collection, bool showDimensions)
+        {
+            return selector.Select(collection.ToArrayList(), showDimensions);
         }
     }
 }
