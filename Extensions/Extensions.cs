@@ -104,5 +104,27 @@ namespace Tekla.Structures.OpenApi
         {
             return selector.Select(collection.ToArrayList(), showDimensions);
         }
+
+        public static IEnumerator GetAllIntersectionPoints(this Model.Solid solid, Geometry3d.CoordinateSystem coordinateSystem)
+        {
+            var point2 = new Geometry3d.Point(coordinateSystem.Origin);
+            var point3 = new Geometry3d.Point(coordinateSystem.Origin);
+
+            point2.Translate(coordinateSystem.AxisX);
+            point3.Translate(coordinateSystem.AxisY);
+
+            return solid.GetAllIntersectionPoints(coordinateSystem.Origin, point2, point3);
+        }
+
+        public static IEnumerator IntersectAllFaces(this Model.Solid solid, Geometry3d.CoordinateSystem coordinateSystem)
+        {
+            var point2 = new Geometry3d.Point(coordinateSystem.Origin);
+            var point3 = new Geometry3d.Point(coordinateSystem.Origin);
+
+            point2.Translate(coordinateSystem.AxisX);
+            point3.Translate(coordinateSystem.AxisY);
+
+            return solid.IntersectAllFaces(coordinateSystem.Origin, point2, point3);
+        }
     }
 }
