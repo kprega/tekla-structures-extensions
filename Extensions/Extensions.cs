@@ -10,6 +10,27 @@ namespace Tekla.Structures.OpenApi
 {
     public static class Extensions
     {
+        #region Private members
+        /// <summary>
+        /// Random instance.
+        /// </summary>
+        private static Random random = new Random();
+
+        /// <summary>
+        /// Creates a new vector, whose values are randomized. Returned vector is normalized.
+        /// </summary>
+        /// <returns>Random vector.</returns>
+        private static Geometry3d.Vector GetRandomVector()
+        {
+            var randomVector = new Geometry3d.Vector(1, 1, 1);
+            randomVector.X *= random.NextDouble();
+            randomVector.Y *= random.NextDouble();
+            randomVector.Z *= random.NextDouble();
+            return randomVector.GetNormal();
+        }
+        #endregion
+
+        #region Public members
         /// <summary>
         /// Creates list of objects with given type from object implementing IEnumerator interface.
         /// </summary>
@@ -124,6 +145,35 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
+        /// Tekla's method overload, using geometric plane object instead of 3 points.
+        /// Used to get all the intersection points between the solid and a plane. Does not arrange the points into polygons, thus a lot faster.
+        /// </summary>
+        /// <param name="solid">Solid to be intersected with a plane.</param>
+        /// <param name="plane">Geometric plane.</param>
+        /// <returns></returns>
+        public static IEnumerator GetAllIntersectionPoints(this Model.Solid solid, Geometry3d.GeometricPlane plane)
+        {
+            var normalVector = plane.GetNormal();
+            var randomVector = GetRandomVector();
+
+            while (normalVector.GetAngleBetween(randomVector) == 0 || normalVector.GetAngleBetween(randomVector) == Math.PI)
+            {
+                randomVector = GetRandomVector();
+            }
+
+            var firstVectorOnPlane = normalVector.Cross(randomVector);
+            var secondVectorOnPlane = normalVector.Cross(firstVectorOnPlane);
+
+            var point2 = new Geometry3d.Point(plane.Origin);
+            var point3 = new Geometry3d.Point(plane.Origin);
+
+            point2.Translate(firstVectorOnPlane);
+            point3.Translate(secondVectorOnPlane);
+
+            return solid.GetAllIntersectionPoints(plane.Origin, point2, point3);
+        }
+
+        /// <summary>
         /// Tekla's method overload, using coordinate system object instead of 3 points.
         /// Returns an enumerator for an array list of lists of plane - solid intersection points from all intersecting faces.
         /// The first item of one list contains points of the outmost intersection polygon and then the inner polygons (if there are any).
@@ -141,5 +191,37 @@ namespace Tekla.Structures.OpenApi
 
             return solid.IntersectAllFaces(coordinateSystem.Origin, point2, point3);
         }
+
+        /// <summary>
+        /// Tekla's method overload, using geometric plane object instead of 3 points.
+        /// Returns an enumerator for an array list of lists of plane - solid intersection points from all intersecting faces.
+        /// The first item of one list contains points of the outmost intersection polygon and then the inner polygons (if there are any).
+        /// </summary>
+        /// <param name="solid">Solid to be intersected with a plane.</param>
+        /// <param name="plane">Geometric plane.</param>
+        /// <returns></returns>
+        public static IEnumerator IntersectAllFaces(this Model.Solid solid, Geometry3d.GeometricPlane plane)
+        {
+            var normalVector = plane.GetNormal();
+            var randomVector = GetRandomVector();
+
+            while(normalVector.GetAngleBetween(randomVector) == 0 || normalVector.GetAngleBetween(randomVector) == Math.PI)
+            {
+                randomVector = GetRandomVector();
+            }
+
+            var firstVectorOnPlane = normalVector.Cross(randomVector);
+            var secondVectorOnPlane = normalVector.Cross(firstVectorOnPlane);
+
+            var point2 = new Geometry3d.Point(plane.Origin);
+            var point3 = new Geometry3d.Point(plane.Origin);
+
+            point2.Translate(firstVectorOnPlane);
+            point3.Translate(secondVectorOnPlane);
+
+            return solid.IntersectAllFaces(plane.Origin, point2, point3);
+        }
+
+        #endregion
     }
 }
