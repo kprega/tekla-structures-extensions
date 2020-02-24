@@ -43,6 +43,30 @@ namespace Tekla.Structures.OpenApi
         {
             point.Translate(vector.X, vector.Y, vector.Z);
         }
+
+        /// <summary>
+        /// Finds if two line segments cross. If so, an intersecting point is returned.
+        /// </summary>
+        /// <param name="lineSegment">First line segment.</param>
+        /// <param name="anotherLine">Second line segment.</param>
+        /// <returns>Intersection point if lines cross, null otherwise.</returns>
+        public static Point Intersect(this LineSegment lineSegment, LineSegment anotherLine)
+        {
+            var lineA = new Line(lineSegment);
+            var lineB = new Line(anotherLine);
+            var intersection = Intersection.LineToLine(lineA, lineB);
+            if (intersection == null || intersection.Length() != 0) return null; // return null in case of parallel lines or when lines do not intersect
+            // check if intersection point is within both line segments
+            var point = intersection.Point1;
+            var xValues = new double[] { lineSegment.Point1.X, lineSegment.Point2.X, anotherLine.Point1.X, anotherLine.Point2.X };
+            var yValues = new double[] { lineSegment.Point1.Y, lineSegment.Point2.Y, anotherLine.Point1.Y, anotherLine.Point2.Y };
+            var zValues = new double[] { lineSegment.Point1.Z, lineSegment.Point2.Z, anotherLine.Point1.Z, anotherLine.Point2.Z };
+
+            if (point.X <= xValues.Max() && point.X >= xValues.Min() &&
+                point.Y <= yValues.Max() && point.Y >= yValues.Min() &&
+                point.Z <= zValues.Max() && point.Z >= zValues.Min()) return point;
+            else return null;
+        }
     }
 
 
