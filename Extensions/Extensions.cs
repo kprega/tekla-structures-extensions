@@ -105,6 +105,13 @@ namespace Tekla.Structures.OpenApi
             return selector.Select(collection.ToArrayList(), showDimensions);
         }
 
+        /// <summary>
+        /// Tekla's method overload, using coordinate system object instead of 3 points.
+        /// Used to get all the intersection points between the solid and a plane. Does not arrange the points into polygons, thus a lot faster.
+        /// </summary>
+        /// <param name="solid">Solid to be intersected with a plane.</param>
+        /// <param name="coordinateSystem">Coordinate system defining a plane.</param>
+        /// <returns></returns>
         public static IEnumerator GetAllIntersectionPoints(this Model.Solid solid, Geometry3d.CoordinateSystem coordinateSystem)
         {
             var point2 = new Geometry3d.Point(coordinateSystem.Origin);
@@ -116,6 +123,14 @@ namespace Tekla.Structures.OpenApi
             return solid.GetAllIntersectionPoints(coordinateSystem.Origin, point2, point3);
         }
 
+        /// <summary>
+        /// Tekla's method overload, using coordinate system object instead of 3 points.
+        /// Returns an enumerator for an array list of lists of plane - solid intersection points from all intersecting faces.
+        /// The first item of one list contains points of the outmost intersection polygon and then the inner polygons (if there are any).
+        /// </summary>
+        /// <param name="solid">Solid to be intersected with a plane.</param>
+        /// <param name="coordinateSystem">Coordinate system defining a plane.</param>
+        /// <returns></returns>
         public static IEnumerator IntersectAllFaces(this Model.Solid solid, Geometry3d.CoordinateSystem coordinateSystem)
         {
             var point2 = new Geometry3d.Point(coordinateSystem.Origin);
