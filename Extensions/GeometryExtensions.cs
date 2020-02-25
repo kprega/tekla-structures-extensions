@@ -43,32 +43,6 @@ namespace Tekla.Structures.OpenApi
         {
             point.Translate(vector.X, vector.Y, vector.Z);
         }
-
-        /// <summary>
-        /// Finds if two line segments cross. If so, an intersecting point is returned.
-        /// </summary>
-        /// <param name="lineSegment">First line segment.</param>
-        /// <param name="anotherLine">Second line segment.</param>
-        /// <returns>Intersection point if lines cross, null otherwise.</returns>
-        public static Point Intersect(this LineSegment lineSegment, LineSegment anotherLine)
-        {
-            var lineA = new Line(lineSegment);
-            var lineB = new Line(anotherLine);
-            var intersection = Intersection.LineToLine(lineA, lineB);
-            if (intersection == null || intersection.Length() != 0) return null; // return null in case of parallel lines or when lines do not intersect
-            // check if intersection point is within both line segments
-            var point = intersection.Point1;
-
-            var withinFirstLine = (point.X >= lineSegment.Point1.X && point.X <= lineSegment.Point2.X) || (point.X >= lineSegment.Point2.X && point.X <= lineSegment.Point1.X) &&
-                                  (point.Y >= lineSegment.Point1.Y && point.Y <= lineSegment.Point2.Y) || (point.Y >= lineSegment.Point2.Y && point.Y <= lineSegment.Point1.Y) &&
-                                  (point.Z >= lineSegment.Point1.Z && point.Z <= lineSegment.Point2.Z) || (point.Z >= lineSegment.Point2.Z && point.Z <= lineSegment.Point1.Z);
-            var withinSecondLine = (point.X >= anotherLine.Point1.X && point.X <= anotherLine.Point2.X) || (point.X >= anotherLine.Point2.X && point.X <= anotherLine.Point1.X) &&
-                                   (point.Y >= anotherLine.Point1.Y && point.Y <= anotherLine.Point2.Y) || (point.Y >= anotherLine.Point2.Y && point.Y <= anotherLine.Point1.Y) &&
-                                   (point.Z >= anotherLine.Point1.Z && point.Z <= anotherLine.Point2.Z) || (point.Z >= anotherLine.Point2.Z && point.Z <= anotherLine.Point1.Z);
-
-            if (withinFirstLine && withinSecondLine) return point;
-            else return null;
-        }
     }
 
 
