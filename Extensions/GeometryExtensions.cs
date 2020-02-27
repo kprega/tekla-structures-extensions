@@ -57,6 +57,16 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
+        /// Creates a point in average coordinates of all points in specified collection.
+        /// </summary>
+        /// <param name="points">Collection of points to be processed.</param>
+        /// <returns>Average point.</returns>
+        public static Point Average(this ICollection<Point> points)
+        {
+            return new Point(points.Average(p => p.X), points.Average(p => p.Y), points.Average(p => p.Z));
+        }
+
+        /// <summary>
         /// Creates oriented bounding box around given part object.
         /// </summary>
         /// <param name="part">Part-type object.</param>
