@@ -222,17 +222,6 @@ namespace Tekla.Structures.OpenApi
             return solid.IntersectAllFaces(plane.Origin, point2, point3);
         }
 
-        /// <summary>
-        /// Creates a point in average coordinates of all points in specified list.
-        /// </summary>
-        /// <param name="pointList">Point list to be processed.</param>
-        /// <returns>Average point.</returns>
-        public static Geometry3d.Point Average(this Drawing.PointList pointList)
-        {
-            var array = pointList.ToArray();
-            return new Geometry3d.Point(array.Average(p => p.X), array.Average(p => p.Y), array.Average(p => p.Z));
-        }
-
         #endregion
     }
 }
