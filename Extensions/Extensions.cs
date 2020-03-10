@@ -222,6 +222,25 @@ namespace Tekla.Structures.OpenApi
             return solid.IntersectAllFaces(plane.Origin, point2, point3);
         }
 
+        /// <summary>
+        /// Searches for boolean cut-parts attached to given part, yet not cutting it, i.e. not changing its volume.
+        /// </summary>
+        /// <param name="part">Model part to be analyzed.</param>
+        /// <returns>List of BooleanParts not reducing part's volume.</returns>
+        public static List<BooleanPart> GetRedundantCuts(this Part part)
+        {
+            var partSolid = part.GetSolid();
+            var cuts = part.GetBooleans().ToList<BooleanPart>().Where(c => c.Type == BooleanPart.BooleanTypeEnum.BOOLEAN_CUT);
+            var result = new List<BooleanPart>();
+            foreach (var cut in cuts)
+            {
+                // skip when there are faces in the part created by given cut, otherwise add cut to the list
+                if (partSolid.GetFaceEnumerator().ToList<Solid.Face>().Any(f => f.OriginPartId.ID == cut.Identifier.ID)) continue;
+                result.Add(cut);
+            }
+            return result;
+        }
+
         #endregion
     }
 }
