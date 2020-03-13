@@ -241,6 +241,21 @@ namespace Tekla.Structures.OpenApi
             return result;
         }
 
+        /// <summary>
+        /// Creates Tekla's PointList collection out of point IEnumerable.
+        /// </summary>
+        /// <param name="collection">Point enumerable.</param>
+        /// <returns>Tekla's PointList object.</returns>
+        public static Drawing.PointList ToPointList(this IEnumerable<Geometry3d.Point> collection)
+        {
+            var list = new Drawing.PointList();
+            foreach (var item in collection)
+            {
+                list.Add(item);
+            }
+            return list;
+        }
+
         #endregion
     }
 }
