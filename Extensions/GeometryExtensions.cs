@@ -99,6 +99,16 @@ namespace Tekla.Structures.OpenApi
 
             return new OBB(centerPoint, vectors, extents);
         }
+
+        /// <summary>
+        /// Returns a cross product of X and Y axes of given coordinate system.
+        /// </summary>
+        /// <param name="coordinateSystem">Coordinate system object.</param>
+        /// <returns>Z axis vector.</returns>
+        public static Vector GetAxisZ(this CoordinateSystem coordinateSystem)
+        {
+            return coordinateSystem.AxisX.Cross(coordinateSystem.AxisY);
+        }
     }
 
 
