@@ -132,7 +132,7 @@ namespace Tekla.Structures.OpenApi
         /// </summary>
         /// <param name="solid">Solid to be intersected with a plane.</param>
         /// <param name="coordinateSystem">Coordinate system defining a plane.</param>
-        /// <returns></returns>
+        /// <returns>Enumerator of points.</returns>
         public static IEnumerator GetAllIntersectionPoints(this Model.Solid solid, Geometry3d.CoordinateSystem coordinateSystem)
         {
             var point2 = new Geometry3d.Point(coordinateSystem.Origin);
@@ -150,7 +150,7 @@ namespace Tekla.Structures.OpenApi
         /// </summary>
         /// <param name="solid">Solid to be intersected with a plane.</param>
         /// <param name="plane">Geometric plane.</param>
-        /// <returns></returns>
+        /// <returns>Enumerator of points.</returns>
         public static IEnumerator GetAllIntersectionPoints(this Model.Solid solid, Geometry3d.GeometricPlane plane)
         {
             var normalVector = plane.GetNormal();
@@ -180,7 +180,7 @@ namespace Tekla.Structures.OpenApi
         /// </summary>
         /// <param name="solid">Solid to be intersected with a plane.</param>
         /// <param name="coordinateSystem">Coordinate system defining a plane.</param>
-        /// <returns></returns>
+        /// <returns>Enumerator of point lists.</returns>
         public static IEnumerator IntersectAllFaces(this Model.Solid solid, Geometry3d.CoordinateSystem coordinateSystem)
         {
             var point2 = new Geometry3d.Point(coordinateSystem.Origin);
@@ -199,7 +199,7 @@ namespace Tekla.Structures.OpenApi
         /// </summary>
         /// <param name="solid">Solid to be intersected with a plane.</param>
         /// <param name="plane">Geometric plane.</param>
-        /// <returns></returns>
+        /// <returns>Enumerator of point lists.</returns>
         public static IEnumerator IntersectAllFaces(this Model.Solid solid, Geometry3d.GeometricPlane plane)
         {
             var normalVector = plane.GetNormal();
