@@ -256,6 +256,25 @@ namespace Tekla.Structures.OpenApi
             return list;
         }
 
+        /// <summary>
+        /// Gets report directory path from given model.
+        /// </summary>
+        /// <param name="model">Model being in use.</param>
+        /// <returns>Report directory path or empty string if failed to retrieve.</returns>
+        public static string GetReportDirectory(this Model.Model model)
+        {
+            string reportDir = string.Empty;
+            TeklaStructuresSettings.GetAdvancedOption("XS_REPORT_OUTPUT_DIRECTORY", ref reportDir);
+            // If report directory is model-related, then there should be ".\" at the beginning of returned string
+            if (reportDir.StartsWith(".\\"))
+            {
+                reportDir = model.GetInfo().ModelPath + reportDir.Substring(1);
+            }
+            // Check if report directory path is valid in both model-related and fixed path scenarios
+            if (System.IO.Directory.Exists(reportDir)) return reportDir;
+            else return string.Empty;
+        }
+
         #endregion
     }
 }
