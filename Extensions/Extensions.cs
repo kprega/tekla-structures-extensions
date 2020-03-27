@@ -275,6 +275,23 @@ namespace Tekla.Structures.OpenApi
             else return string.Empty;
         }
 
+        /// <summary>
+        /// Tekla's method overload, using 3d line as input object.
+        /// Returns a list of line - solid intersection points. 
+        /// </summary>
+        /// <param name="solid">Solid to be intersect.</param>
+        /// <param name="line">The intersection line to be used.</param>
+        /// <returns>An array list of intersection points.</returns>
+        public static ArrayList Intersect(this Model.Solid solid, Geometry3d.Line line)
+        {
+            var points = new Geometry3d.Point[]
+            {
+                new Geometry3d.Point(line.Origin),
+                new Geometry3d.Point(line.Origin) + line.Direction
+            };
+            return solid.Intersect(points[0], points[1]);
+        }
+
         #endregion
     }
 }
