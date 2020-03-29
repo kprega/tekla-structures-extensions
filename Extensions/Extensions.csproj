@@ -80,6 +80,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CutLocationEnum.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="GeometryExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -292,6 +292,43 @@ namespace Tekla.Structures.OpenApi
             return solid.Intersect(points[0], points[1]);
         }
 
+        /// <summary>
+        /// Determines whether cut is located on edge, corner or internal area of its father part.
+        /// </summary>
+        /// <param name="booleanPart">Tekla boolean part - cut object.</param>
+        /// <returns>Location of the cut.</returns>
+        public static CutLocationEnum GetCutLocation(this BooleanPart booleanPart)
+        {
+            if (booleanPart.Type != BooleanPart.BooleanTypeEnum.BOOLEAN_CUT) throw new InvalidOperationException("Boolean part must be a cut.");
+            var fatherRawSolid = (booleanPart.Father as Part).GetSolid(Model.Solid.SolidCreationTypeEnum.RAW);
+            var solidEdges = fatherRawSolid.GetEdgeEnumerator().ToList<Solid.Edge>();
+            var cuttingPartSolid = booleanPart.OperativePart.GetSolid();
+            var edgesCut = solidEdges.Where(e => cuttingPartSolid.Intersect(e.StartPoint, e.EndPoint).Count != 0);
+
+            if (edgesCut.Count() == 0) return CutLocationEnum.Internal;
+            /*if (edgesCut.Count() == 1)*/ return CutLocationEnum.Edge;
+
+            // If 2 or more edges are cut, it could be either edge or corner cut.
+            // Corner cut will contain a vertex inside the cutting solid.
+            var vertices = new List<Geometry3d.Point>();
+            fatherRawSolid.GetFaceEnumerator().ToList<Solid.Face>().ForEach(
+                x => x.GetLoopEnumerator().ToList<Solid.Loop>().ForEach(
+                    y => vertices.AddRange(y.GetVertexEnumerator().ToList<Geometry3d.Point>())));
+            vertices = vertices.Distinct().ToList();
+
+            // Ray-tracing algorithm implementation.
+            // If point is inside solid, there will be odd numbers of intersections between solid faces and any ray originated in given point.
+            // Tekla does not support rays, so a line must be used instead.
+            var randomVector = GetRandomVector();
+            foreach (var p in vertices)
+            {
+                var intersectionPoints =  cuttingPartSolid.Intersect(p, p + randomVector);
+                if (intersectionPoints.Count > 0)
+                {
+                    // To be continued. Check what happens on boundaries.
+                }
+            }
+        }
         #endregion
     }
 }
