@@ -306,28 +306,35 @@ namespace Tekla.Structures.OpenApi
             var edgesCut = solidEdges.Where(e => cuttingPartSolid.Intersect(e.StartPoint, e.EndPoint).Count != 0);
 
             if (edgesCut.Count() == 0) return CutLocationEnum.Internal;
-            /*if (edgesCut.Count() == 1)*/ return CutLocationEnum.Edge;
+            if (edgesCut.Count() == 1) return CutLocationEnum.Edge;
 
             // If 2 or more edges are cut, it could be either edge or corner cut.
-            // Corner cut will contain a vertex inside the cutting solid.
+            // Corner cut will contain a vertex (i.e. point common for at least 2 edges) inside the cutting solid.
             var vertices = new List<Geometry3d.Point>();
-            fatherRawSolid.GetFaceEnumerator().ToList<Solid.Face>().ForEach(
-                x => x.GetLoopEnumerator().ToList<Solid.Loop>().ForEach(
-                    y => vertices.AddRange(y.GetVertexEnumerator().ToList<Geometry3d.Point>())));
-            vertices = vertices.Distinct().ToList();
+            foreach (var edge in edgesCut)
+            {
+                vertices.Add(edge.StartPoint);
+                vertices.Add(edge.EndPoint);
+            }
+            vertices = vertices.GroupBy(n => n).Where(n => n.Count() > 1).Select(n => n.Key).ToList();
 
             // Ray-tracing algorithm implementation.
             // If point is inside solid, there will be odd numbers of intersections between solid faces and any ray originated in given point.
             // Tekla does not support rays, so a line must be used instead.
-            var randomVector = GetRandomVector();
-            foreach (var p in vertices)
-            {
-                var intersectionPoints =  cuttingPartSolid.Intersect(p, p + randomVector);
-                if (intersectionPoints.Count > 0)
+            var randomVector = GetRandomVector() * 1000; // Vector length must be increased, otherwise Tekla will not find intersection points.
+            var hasVertexInside = vertices.Any(v =>
+            {               
+                var intersection = cuttingPartSolid.Intersect(v, v + randomVector).Cast<Geometry3d.Point>();
+                var pointsOnRay = intersection.Where(x =>
                 {
-                    // To be continued. Check what happens on boundaries.
-                }
-            }
+                    var vectorToIntersectionPoint = new Geometry3d.Vector(x - v);
+                    var factor = Math.Round(vectorToIntersectionPoint.X / randomVector.X, 3);
+                    return factor == Math.Round(vectorToIntersectionPoint.Y / randomVector.Y, 3) && factor == Math.Round(vectorToIntersectionPoint.Z / randomVector.Z, 3);
+                });
+                return pointsOnRay.Count() % 2 != 0;
+            });
+
+            return hasVertexInside ? CutLocationEnum.Corner : CutLocationEnum.Edge;
         }
         #endregion
     }
