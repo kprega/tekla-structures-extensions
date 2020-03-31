@@ -317,24 +317,28 @@ namespace Tekla.Structures.OpenApi
                 vertices.Add(edge.EndPoint);
             }
             vertices = vertices.GroupBy(n => n).Where(n => n.Count() > 1).Select(n => n.Key).ToList();
+            return vertices.Any(v => v.IsInside(cuttingPartSolid)) ? CutLocationEnum.Corner : CutLocationEnum.Edge;
+        }
 
-            // Ray-tracing algorithm implementation.
-            // If point is inside solid, there will be odd numbers of intersections between solid faces and any ray originated in given point.
-            // Tekla does not support rays, so a line must be used instead.
-            var randomVector = GetRandomVector() * 1000; // Vector length must be increased, otherwise Tekla will not find intersection points.
-            var hasVertexInside = vertices.Any(v =>
-            {               
-                var intersection = cuttingPartSolid.Intersect(v, v + randomVector).Cast<Geometry3d.Point>();
-                var pointsOnRay = intersection.Where(x =>
-                {
-                    var vectorToIntersectionPoint = new Geometry3d.Vector(x - v);
-                    var factor = Math.Round(vectorToIntersectionPoint.X / randomVector.X, 3);
-                    return factor == Math.Round(vectorToIntersectionPoint.Y / randomVector.Y, 3) && factor == Math.Round(vectorToIntersectionPoint.Z / randomVector.Z, 3);
-                });
-                return pointsOnRay.Count() % 2 != 0;
+        /// <summary>
+        /// Ray tracing algorithm implementation for Tekla Structures.
+        /// </summary>
+        /// <param name="point">Point to be checked.</param>
+        /// <param name="solid">Solid, against which the point is going to be checked.</param>
+        /// <returns>True if point is inside or on the surface of the solid, false otherwise.</returns>
+        public static bool IsInside(this Geometry3d.Point point, Model.Solid solid)
+        {
+            var randomVector = GetRandomVector() * 1000; // Vector length must be increased, otherwise Tekla will not find any intersection points.
+            var intersection = solid.Intersect(point, point + randomVector).Cast<Geometry3d.Point>();
+            // Tekla does not support rays, a line will be used instead. All points found on opposite direction must be excluded.
+            var pointsOnRay = intersection.Where(x =>
+            {
+                var vectorToIntersectionPoint = new Geometry3d.Vector(x - point);
+                var factor = Math.Round(vectorToIntersectionPoint.X / randomVector.X, 3);
+                return factor == Math.Round(vectorToIntersectionPoint.Y / randomVector.Y, 3) && factor == Math.Round(vectorToIntersectionPoint.Z / randomVector.Z, 3);
             });
-
-            return hasVertexInside ? CutLocationEnum.Corner : CutLocationEnum.Edge;
+            // If point is inside solid, there will be odd numbers of intersections between solid faces and any ray originated in given point.
+            return pointsOnRay.Count() % 2 != 0;
         }
         #endregion
     }
