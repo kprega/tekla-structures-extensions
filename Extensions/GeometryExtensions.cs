@@ -8,6 +8,9 @@ using Tekla.Structures.Model;
 
 namespace Tekla.Structures.OpenApi
 {
+    /// <summary>
+    /// Extensions related to geometric objects operations.
+    /// </summary>
     public static class GeometryExtensions
     {
         /// <summary>
@@ -67,7 +70,7 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
-        /// Creates oriented bounding box around given part object.
+        /// Creates an instance of <see cref="OBB"/> wrapping given part object.
         /// </summary>
         /// <param name="part">Part-type object.</param>
         /// <returns>Part-oriented bounding box.</returns>

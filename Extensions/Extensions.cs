@@ -8,6 +8,9 @@ using Tekla.Structures.Model;
 
 namespace Tekla.Structures.OpenApi
 {
+    /// <summary>
+    /// Class providing extentions for Tekla Structures using OpenAPI.
+    /// </summary>
     public static class Extensions
     {
         #region Private members
@@ -17,7 +20,7 @@ namespace Tekla.Structures.OpenApi
         private static Random random = new Random();
 
         /// <summary>
-        /// Creates a new vector, whose values are randomized. Returned vector is normalized.
+        /// Creates a new instance of <see cref="Geometry3d.Vector"/>, whose values are randomized. Returned vector is normalized.
         /// </summary>
         /// <returns>Random vector.</returns>
         private static Geometry3d.Vector GetRandomVector()
@@ -32,10 +35,10 @@ namespace Tekla.Structures.OpenApi
 
         #region Public members
         /// <summary>
-        /// Creates list of objects with given type from object implementing IEnumerator interface.
+        /// Creates list of objects with given type from object implementing <see cref="IEnumerator"/> interface.
         /// </summary>
         /// <typeparam name="T">Type of objects in the list.</typeparam>
-        /// <param name="enumerator">Object implementing IEnumerator interface.</param>
+        /// <param name="enumerator">Object implementing <see cref="IEnumerator"/> interface.</param>
         /// <returns>List of objects of given type.</returns>
         public static List<T> ToList<T>(this IEnumerator enumerator)
         {
@@ -63,7 +66,7 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
-        /// Gets given object's phase.
+        /// Gets given object's <see cref="Phase"/>.
         /// </summary>
         /// <param name="modelObject">Model object to read phase from.</param>
         /// <returns>Model object's phase.</returns>
@@ -75,7 +78,7 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
-        /// Overload of Tekla's method, using an AABB as input parameter instead of 2 points.
+        /// Overload of Tekla's method, using an instance of <see cref="Geometry3d.AABB"/> as input parameter instead of 2 points.
         /// </summary>
         /// <param name="selector">Model object selector to select nearby objects.</param>
         /// <param name="box">Axis-aligned bounding box as input.</param>
@@ -86,7 +89,7 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
-        /// Overload of Tekla's method, using an OBB as input parameter instead of 2 points.
+        /// Overload of Tekla's method, using an instance of <see cref="Geometry3d.OBB"/> as input parameter instead of 2 points.
         /// </summary>
         /// <param name="selector">Model object selector to select nearby objects.</param>
         /// <param name="box">Oriented bounding box as input.</param>
@@ -107,7 +110,7 @@ namespace Tekla.Structures.OpenApi
         /// Overload of Tekla's method, selects objects using given collection.
         /// </summary>
         /// <param name="selector">Model object selector to select objects in UI.</param>
-        /// <param name="collection">Object implementing generic ICollection interface.</param>
+        /// <param name="collection">Object implementing generic <see cref="ICollection{T}"/> interface.</param>
         /// <returns>True on success, false otherwise.</returns>
         public static bool Select(this Model.UI.ModelObjectSelector selector, ICollection<ModelObject> collection)
         {
@@ -118,7 +121,7 @@ namespace Tekla.Structures.OpenApi
         /// Overload of Tekla's method, selects objects using given collection.
         /// </summary>
         /// <param name="selector">Model object selector to select objects in UI.</param>
-        /// <param name="collection">Object implementing generic ICollection interface.</param>
+        /// <param name="collection">Object implementing generic <see cref="ICollection{T}"/> interface.</param>
         /// <param name="showDimensions">Defines whether to show dimensions of selected objects.</param>
         /// <returns>True on success, false otherwise.</returns>
         public static bool Select(this Model.UI.ModelObjectSelector selector, ICollection<ModelObject> collection, bool showDimensions)
@@ -242,7 +245,7 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
-        /// Creates Tekla's PointList collection out of point IEnumerable.
+        /// Creates Tekla's <see cref="Drawing.PointList"/> collection.
         /// </summary>
         /// <param name="collection">Point enumerable.</param>
         /// <returns>Tekla's PointList object.</returns>
@@ -276,7 +279,7 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
-        /// Tekla's method overload, using 3d line as input object.
+        /// Tekla's method overload, using <see cref="Geometry3d.Line"/> as input object.
         /// Returns a list of line - solid intersection points. 
         /// </summary>
         /// <param name="solid">Solid to be intersect.</param>
