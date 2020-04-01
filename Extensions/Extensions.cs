@@ -55,7 +55,7 @@ namespace Tekla.Structures.OpenApi
         /// </summary>
         /// <param name="collection">Collection of model objects.</param>
         /// <returns>Array list containing model objects.</returns>
-        public static ArrayList ToArrayList(this ICollection<ModelObject> collection)
+        public static ArrayList ToArrayList(this IEnumerable<ModelObject> collection)
         {
             var arraylist = new ArrayList();
             foreach (var item in collection)
@@ -110,9 +110,9 @@ namespace Tekla.Structures.OpenApi
         /// Overload of Tekla's method, selects objects using given collection.
         /// </summary>
         /// <param name="selector">Model object selector to select objects in UI.</param>
-        /// <param name="collection">Object implementing generic <see cref="ICollection{T}"/> interface.</param>
+        /// <param name="collection">Object implementing generic <see cref="IEnumerable{T}"/> interface.</param>
         /// <returns>True on success, false otherwise.</returns>
-        public static bool Select(this Model.UI.ModelObjectSelector selector, ICollection<ModelObject> collection)
+        public static bool Select(this Model.UI.ModelObjectSelector selector, IEnumerable<ModelObject> collection)
         {
             return selector.Select(collection.ToArrayList());
         }
@@ -121,10 +121,10 @@ namespace Tekla.Structures.OpenApi
         /// Overload of Tekla's method, selects objects using given collection.
         /// </summary>
         /// <param name="selector">Model object selector to select objects in UI.</param>
-        /// <param name="collection">Object implementing generic <see cref="ICollection{T}"/> interface.</param>
+        /// <param name="collection">Object implementing generic <see cref="IEnumerable{T}"/> interface.</param>
         /// <param name="showDimensions">Defines whether to show dimensions of selected objects.</param>
         /// <returns>True on success, false otherwise.</returns>
-        public static bool Select(this Model.UI.ModelObjectSelector selector, ICollection<ModelObject> collection, bool showDimensions)
+        public static bool Select(this Model.UI.ModelObjectSelector selector, IEnumerable<ModelObject> collection, bool showDimensions)
         {
             return selector.Select(collection.ToArrayList(), showDimensions);
         }
