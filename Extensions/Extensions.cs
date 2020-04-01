@@ -232,13 +232,19 @@ namespace Tekla.Structures.OpenApi
         /// <returns>List of BooleanParts not reducing part's volume.</returns>
         public static List<BooleanPart> GetRedundantCuts(this Part part)
         {
-            var partSolid = part.GetSolid();
+            var partSolid = part.GetSolid(Model.Solid.SolidCreationTypeEnum.FITTED);
             var cuts = part.GetBooleans().ToList<BooleanPart>().Where(c => c.Type == BooleanPart.BooleanTypeEnum.BOOLEAN_CUT);
             var result = new List<BooleanPart>();
             foreach (var cut in cuts)
             {
                 // skip when there are faces in the part created by given cut, otherwise add cut to the list
-                if (partSolid.GetFaceEnumerator().ToList<Solid.Face>().Any(f => f.OriginPartId.ID == cut.Identifier.ID)) continue;
+                var shells = partSolid.GetCutPart(cut.OperativePart.GetSolid()).ToList<Solid.Shell>();
+                var faces = new List<Solid.Face>();
+                foreach (var shell in shells)
+                {
+                    faces.AddRange(shell.GetFaceEnumerator().ToList<Solid.Face>());
+                }
+                if (faces.Any(f => f.OriginPartId.ID == cut.Identifier.ID)) continue;
                 result.Add(cut);
             }
             return result;
