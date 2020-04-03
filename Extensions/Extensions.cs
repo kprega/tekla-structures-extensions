@@ -232,19 +232,26 @@ namespace Tekla.Structures.OpenApi
         /// <returns>List of BooleanParts not reducing part's volume.</returns>
         public static List<BooleanPart> GetRedundantCuts(this Part part)
         {
-            var partSolid = part.GetSolid(Model.Solid.SolidCreationTypeEnum.FITTED);
+            var partNormalSolid = part.GetSolid();
+            var partPlanecuttedSolid = part.GetSolid(Model.Solid.SolidCreationTypeEnum.PLANECUTTED);
             var cuts = part.GetBooleans().ToList<BooleanPart>().Where(c => c.Type == BooleanPart.BooleanTypeEnum.BOOLEAN_CUT);
             var result = new List<BooleanPart>();
             foreach (var cut in cuts)
             {
-                // skip when there are faces in the part created by given cut, otherwise add cut to the list
-                var shells = partSolid.GetCutPart(cut.OperativePart.GetSolid()).ToList<Solid.Shell>();
+                // Collect identifiers for cut and its added materials.
+                var cutIds = cut.OperativePart.GetBooleans().ToList<BooleanPart>().Where(b => b.Type == BooleanPart.BooleanTypeEnum.BOOLEAN_ADD).Select(b => b.OperativePart.Identifier.ID).ToList();
+                cutIds.Add(cut.Identifier.ID);
+
+                // Skip when there are faces in the part created by given cut.
+                if (partNormalSolid.GetFaceEnumerator().ToList<Solid.Face>().Any(f => cutIds.Contains(f.OriginPartId.ID))) continue;
+
+                // In some cases Tekla returns invalid IDs and cut is marked as invalid, despite cutting through part.
+                // Workaround: execute cutting operation in the fly and check if resulting shells have faces created by cutting solid.
                 var faces = new List<Solid.Face>();
-                foreach (var shell in shells)
-                {
-                    faces.AddRange(shell.GetFaceEnumerator().ToList<Solid.Face>());
-                }
-                if (faces.Any(f => f.OriginPartId.ID == cut.Identifier.ID)) continue;
+                partPlanecuttedSolid.GetCutPart(cut.OperativePart.GetSolid()).ToList<Solid.Shell>().ForEach(s => faces.AddRange(s.GetFaceEnumerator().ToList<Solid.Face>()));
+                if (faces.Any(f => cutIds.Contains(f.OriginPartId.ID))) continue;
+                
+                // If both tests couldn't find face created by given cut, therefore cut doesn't go through the part.
                 result.Add(cut);
             }
             return result;
