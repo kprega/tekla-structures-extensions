@@ -245,8 +245,8 @@ namespace Tekla.Structures.OpenApi
                 // Skip when there are faces in the part created by given cut.
                 if (partNormalSolid.GetFaceEnumerator().ToList<Solid.Face>().Any(f => cutIds.Contains(f.OriginPartId.ID))) continue;
 
-                // In some cases Tekla returns invalid IDs and cut is marked as invalid, despite cutting through part.
-                // Workaround: execute cutting operation in the fly and check if resulting shells have faces created by cutting solid.
+                // In some cases Tekla returns invalid IDs and cut is marked as redundant, despite cutting through part.
+                // Workaround: execute cutting operation and check if resulting shells have faces created by cutting solid.
                 var faces = new List<Solid.Face>();
                 partPlanecuttedSolid.GetCutPart(cut.OperativePart.GetSolid()).ToList<Solid.Shell>().ForEach(s => faces.AddRange(s.GetFaceEnumerator().ToList<Solid.Face>()));
                 if (faces.Any(f => cutIds.Contains(f.OriginPartId.ID))) continue;
