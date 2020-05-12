@@ -84,7 +84,7 @@ namespace Tekla.Structures.OpenApi
         /// <param name="box">Axis-aligned bounding box as input.</param>
         /// <returns>Enumerator of model objects being near to given AABB.</returns>
         public static ModelObjectEnumerator GetObjectsByBoundingBox(this ModelObjectSelector selector, Geometry3d.AABB box)
-        {            
+        {
             return selector.GetObjectsByBoundingBox(box.MinPoint, box.MaxPoint);
         }
 
@@ -100,8 +100,8 @@ namespace Tekla.Structures.OpenApi
             var currentTransformationPlane = workPlaneHandler.GetCurrentTransformationPlane();
             workPlaneHandler.SetCurrentTransformationPlane(new TransformationPlane(box.Center, box.Axis0, box.Axis1));
             var result = selector.GetObjectsByBoundingBox(
-                MinPoint: new Geometry3d.Point(-box.Extent0, -box.Extent1, -box.Extent2), 
-                MaxPoint: new Geometry3d.Point( box.Extent0,  box.Extent1,  box.Extent2));
+                MinPoint: new Geometry3d.Point(-box.Extent0, -box.Extent1, -box.Extent2),
+                MaxPoint: new Geometry3d.Point(box.Extent0, box.Extent1, box.Extent2));
             workPlaneHandler.SetCurrentTransformationPlane(currentTransformationPlane);
             return result;
         }
@@ -127,6 +127,29 @@ namespace Tekla.Structures.OpenApi
         public static bool Select(this Model.UI.ModelObjectSelector selector, IEnumerable<ModelObject> collection, bool showDimensions)
         {
             return selector.Select(collection.ToArrayList(), showDimensions);
+        }
+
+        /// <summary>
+        /// Overload of Tekla's method, selects single object.
+        /// </summary>
+        /// <param name="selector">Model object selector to select object in UI.</param>
+        /// <param name="modelObject">Tekla's model object.</param>
+        /// <returns>True on success, false otherwise.</returns>
+        public static bool Select(this Model.UI.ModelObjectSelector selector, ModelObject modelObject)
+        {
+            return selector.Select(new ArrayList() { modelObject });
+        }
+
+        /// <summary>
+        /// Overload of Tekla's method, selects single object.
+        /// </summary>
+        /// <param name="selector">Model object selector to select object in UI.</param>
+        /// <param name="modelObject">Tekla's model object.</param>
+        /// <param name="showDimensions">Defines whether to show dimensions of selected object.</param>
+        /// <returns>True on success, false otherwise.</returns>
+        public static bool Select(this Model.UI.ModelObjectSelector selector, ModelObject modelObject, bool showDimensions)
+        {
+            return selector.Select(new ArrayList() { modelObject }, showDimensions);
         }
 
         /// <summary>
@@ -208,7 +231,7 @@ namespace Tekla.Structures.OpenApi
             var normalVector = plane.GetNormal();
             var randomVector = GetRandomVector();
 
-            while(normalVector.GetAngleBetween(randomVector) == 0 || normalVector.GetAngleBetween(randomVector) == Math.PI)
+            while (normalVector.GetAngleBetween(randomVector) == 0 || normalVector.GetAngleBetween(randomVector) == Math.PI)
             {
                 randomVector = GetRandomVector();
             }
@@ -250,7 +273,7 @@ namespace Tekla.Structures.OpenApi
                 var faces = new List<Solid.Face>();
                 partPlanecuttedSolid.GetCutPart(cut.OperativePart.GetSolid()).ToList<Solid.Shell>().ForEach(s => faces.AddRange(s.GetFaceEnumerator().ToList<Solid.Face>()));
                 if (faces.Any(f => cutIds.Contains(f.OriginPartId.ID))) continue;
-                
+
                 // If both tests couldn't find face created by given cut, therefore cut doesn't go through the part.
                 result.Add(cut);
             }
