@@ -11,6 +11,10 @@ namespace Tekla.Structures.OpenApi
     public enum CutLocationEnum
     {
         /// <summary>
+        /// Indicates that cut is not cutting through the part,
+        /// </summary>
+        Outside,
+        /// <summary>
         /// Indicates that cut is located inside a part, i.e. doesn't cut any edge.
         /// </summary>
         Internal,

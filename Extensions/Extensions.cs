@@ -338,7 +338,11 @@ namespace Tekla.Structures.OpenApi
         /// <returns>Location of the cut.</returns>
         public static CutLocationEnum GetCutLocation(this BooleanPart booleanPart)
         {
+            // Verify if given BooleanPart is a cut first
             if (booleanPart.Type != BooleanPart.BooleanTypeEnum.BOOLEAN_CUT) throw new InvalidOperationException("Boolean part must be a cut.");
+            // Check if cut is cutting through part
+            if ((booleanPart.Father as Part).GetRedundantCuts().Any(c => c.Identifier.ID == booleanPart.Identifier.ID)) return CutLocationEnum.Outside;
+            // If so, then look for cutted edges
             var fatherRawSolid = (booleanPart.Father as Part).GetSolid(Model.Solid.SolidCreationTypeEnum.RAW);
             var solidEdges = fatherRawSolid.GetEdgeEnumerator().ToList<Solid.Edge>();
             var cuttingPartSolid = booleanPart.OperativePart.GetSolid();
