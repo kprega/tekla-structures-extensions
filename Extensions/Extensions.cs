@@ -31,6 +31,25 @@ namespace Tekla.Structures.OpenApi
             randomVector.Z *= random.NextDouble();
             return randomVector.GetNormal();
         }
+
+        /// <summary>
+        /// Container for recursive call.
+        /// </summary>
+        private static ArrayList Parts;
+
+        /// <summary>
+        /// Recursively collects parts creating given assembly.
+        /// </summary>
+        /// <param name="assembly"></param>
+        private static void CollectParts(this Assembly assembly)
+        {
+            Parts.Add(assembly.GetMainPart());
+            Parts.AddRange(assembly.GetSecondaries());
+            foreach (var sub in assembly.GetSubAssemblies())
+            {
+                CollectParts(sub as Assembly);
+            }
+        }
         #endregion
 
         #region Public members
@@ -383,6 +402,47 @@ namespace Tekla.Structures.OpenApi
             // If point is inside solid, there will be odd numbers of intersections between solid faces and any ray originated in given point.
             return pointsOnRay.Count() % 2 != 0;
         }
+
+        /// <summary>
+        /// Collects all parts creating given assembly.
+        /// </summary>
+        /// <param name="assembly">Assembly to be processed.</param>
+        /// <returns>A list of parts.</returns>
+        public static List<Part> GetAllParts(this Assembly assembly)
+        {
+            Parts = new ArrayList();
+            CollectParts(assembly);
+            var result = new List<Part>();
+            foreach (var item in Parts)
+            {
+                result.Add(item as Part);
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Gets center of gravity for given instance of <see cref="ModelObject"/>
+        /// </summary>
+        /// <param name="modelObject">Model object to be inquired.</param>
+        /// <returns>Point of center of gravity global coordinate system.</returns>
+        public static Geometry3d.Point GetGravityCenter(this ModelObject modelObject)
+        {
+            ArrayList propertyNames = new ArrayList() { "COG_X", "COG_Y", "COG_Z" };
+            Hashtable inquireResult = new Hashtable();
+            if (!modelObject.GetDoubleReportProperties(propertyNames, ref inquireResult))
+            {
+                throw new Exception("Failed to read center of gravity.");
+            };
+
+            var globalCog = new Geometry3d.Point()
+            {
+                X = double.Parse(inquireResult[propertyNames[0]].ToString()),
+                Y = double.Parse(inquireResult[propertyNames[1]].ToString()),
+                Z = double.Parse(inquireResult[propertyNames[2]].ToString())
+            };
+            return globalCog;
+        }
+
         #endregion
     }
 }
