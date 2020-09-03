@@ -390,7 +390,7 @@ namespace Tekla.Structures.OpenApi
         /// <returns>True if point is inside or on the surface of the solid, false otherwise.</returns>
         public static bool IsInside(this Geometry3d.Point point, Model.Solid solid)
         {
-            var randomVector = GetRandomVector() * 1000; // Vector length must be increased, otherwise Tekla will not find any intersection points.
+            var randomVector = GetRandomVector() * Math.Pow(10, 9); // Vector length must be increased, otherwise Tekla will not find any intersection points.
             var intersection = solid.Intersect(point, point + randomVector).Cast<Geometry3d.Point>();
             // Tekla does not support rays, a line will be used instead. All points found on opposite direction must be excluded.
             var pointsOnRay = intersection.Where(x =>
@@ -404,18 +404,28 @@ namespace Tekla.Structures.OpenApi
         }
 
         /// <summary>
-        /// Collects all parts creating given assembly.
+        /// Collects parts creating given assembly.
         /// </summary>
         /// <param name="assembly">Assembly to be processed.</param>
+        /// <param name="includeSubassemblies">Indicates whether subassemblies parts shall be included in result.</param>
         /// <returns>A list of parts.</returns>
-        public static List<Part> GetAllParts(this Assembly assembly)
+        public static List<Part> GetAllParts(this Assembly assembly, bool includeSubassemblies = true)
         {
-            Parts = new ArrayList();
-            CollectParts(assembly);
             var result = new List<Part>();
-            foreach (var item in Parts)
+            if (includeSubassemblies)
             {
-                result.Add(item as Part);
+                Parts = new ArrayList();
+                CollectParts(assembly);
+
+                foreach (var item in Parts)
+                {
+                    result.Add(item as Part);
+                }
+            }
+            else
+            {
+                result.Add(assembly.GetMainPart() as Part);
+                result.AddRange(assembly.GetSecondaries().Cast<Part>());
             }
             return result;
         }
