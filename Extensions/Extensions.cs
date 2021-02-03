@@ -64,7 +64,7 @@ namespace Tekla.Structures.OpenApi
             var list = new List<T>();
             while (enumerator.MoveNext())
             {
-                if (enumerator.Current is T) list.Add((T)enumerator.Current);
+                if (enumerator.Current is T tItem) list.Add(tItem);
             }
             return list;
         }
@@ -345,7 +345,7 @@ namespace Tekla.Structures.OpenApi
             var points = new Geometry3d.Point[]
             {
                 new Geometry3d.Point(line.Origin),
-                new Geometry3d.Point(line.Origin) + line.Direction
+                new Geometry3d.Point(line.Origin) + line.Direction * Math.Pow(10, 9) // Vector length must be increased, otherwise Tekla may not find any intersection points.
             };
             return solid.Intersect(points[0], points[1]);
         }
@@ -390,8 +390,8 @@ namespace Tekla.Structures.OpenApi
         /// <returns>True if point is inside or on the surface of the solid, false otherwise.</returns>
         public static bool IsInside(this Geometry3d.Point point, Model.Solid solid)
         {
-            var randomVector = GetRandomVector() * Math.Pow(10, 9); // Vector length must be increased, otherwise Tekla will not find any intersection points.
-            var intersection = solid.Intersect(point, point + randomVector).Cast<Geometry3d.Point>();
+            var randomVector = GetRandomVector();
+            var intersection = solid.Intersect(new Geometry3d.Line(point, randomVector)).Cast<Geometry3d.Point>();
             // Tekla does not support rays, a line will be used instead. All points found on opposite direction must be excluded.
             var pointsOnRay = intersection.Where(x =>
             {
